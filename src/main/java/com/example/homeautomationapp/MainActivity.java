@@ -23,6 +23,8 @@ import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
 import androidx.core.content.ContextCompat;
+
+import android.widget.EditText;
 import android.widget.Toast;
 import androidx.core.app.ActivityCompat;
 import android.content.pm.PackageManager;
@@ -50,6 +52,10 @@ public class MainActivity extends AppCompatActivity {
     private MediaRecorder mediaRecorder;
     private boolean isRecording = false;
     public static final int REQUEST_AUDIO_PERMISSION_CODE = 1;
+
+    private String ipAddress = "";
+
+    private String ext = ".wav";
 
     private MediaPlayer mPlayer;
     @Override
@@ -86,12 +92,18 @@ public class MainActivity extends AppCompatActivity {
             try {
                 mediaRecorder = new MediaRecorder(getApplicationContext());
                 mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-                mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-                mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-                mediaRecorder.setOutputFile(getCacheDir().getAbsolutePath() + "/audio.3gp");
+                mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+                mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+                mediaRecorder.setAudioEncodingBitRate(128000);
+                mediaRecorder.setAudioChannels(1);
+                mediaRecorder.setAudioSamplingRate(16000);
+                mediaRecorder.setAudioEncodingBitRate(2);
+                mediaRecorder.setOutputFile(getCacheDir().getAbsolutePath() + "/audio" + ext);
                 mediaRecorder.prepare();
                 mediaRecorder.start();
                 isRecording = true;
+                EditText editTextServerIP = findViewById(R.id.editTextServerIP);
+                ipAddress = editTextServerIP.getText().toString();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -107,7 +119,6 @@ public class MainActivity extends AppCompatActivity {
             mediaRecorder.release();
             isRecording = false;
 //            playAudio();
-//            new Thread(new UploadAudioTask()).start();
             upload();
         }
     }
@@ -118,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             // below method is used to set the
             // data source which will be our file name
-            mPlayer.setDataSource(getCacheDir().getAbsolutePath() + "/audio.3gp");
+            mPlayer.setDataSource(getCacheDir().getAbsolutePath() + "/audio" + ext);
 
             // below method will prepare our media player
             mPlayer.prepare();
@@ -133,40 +144,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void upload() {
         Toast.makeText(getApplicationContext(), "Preparing to send audio", Toast.LENGTH_SHORT).show();
-//        new UploadTask().execute();
         new AudioFileUploader().execute();
-    }
-
-    public class UploadTask extends AsyncTask<Void, Void, String> {
-        @Override
-        protected String doInBackground(Void... voids) {
-            try {
-                String serverUrl = "http://192.168.0.133:5000/receive_audio";
-
-                // MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
-
-                OkHttpClient client = new OkHttpClient.Builder().connectTimeout(30, TimeUnit.SECONDS).writeTimeout(30, TimeUnit.SECONDS).readTimeout(30, TimeUnit.SECONDS).build();
-                File file = new File(getCacheDir().getAbsolutePath() + "/audio.3gp");
-                MultipartBody mRequestBody = new MultipartBody.Builder().setType(MultipartBody.FORM) .addFormDataPart("audio", file.getName(), RequestBody.create(MediaType.parse("audio/*"), file)).build();
-
-                Request request = new Request.Builder()
-                        .url(serverUrl).post(mRequestBody)
-                        .build();
-
-                Response response = client.newCall(request).execute();
-                String responseString = response.body().string();
-                return "Success"; // or any result you want to pass to onPostExecute
-            } catch (IOException e) {
-                e.printStackTrace();
-                return "Error: " + e.getMessage(); // or handle the error in an appropriate way
-            }
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            // This method is executed on the main thread and receives the result from doInBackground
-            Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT).show();
-        }
     }
 
 
@@ -175,8 +153,8 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... voids) {
             try {
-                String serverUrl = "http://192.168.0.133:5000/";
-                String filePath = getCacheDir().getAbsolutePath() + "/audio.3gp"; // Replace with the path to your audio file
+                String serverUrl = "http://" + ipAddress + "/";
+                String filePath = getCacheDir().getAbsolutePath() + "/audio" + ext;
 
                 // Create a Retrofit instance
                 Retrofit retrofit = new Retrofit.Builder()
