@@ -1,35 +1,69 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<!-- activity_main.xml -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
+    android:paddingLeft="16dp"
+    android:paddingTop="16dp"
+    android:paddingRight="16dp"
+    android:paddingBottom="16dp"
     tools:context=".MainActivity">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/constraintLayout"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <EditText
-            android:id="@+id/editTextServerIP"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/chatRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="470dp"
+            android:layout_above="@+id/inputContainer"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Input container at the bottom -->
+        <LinearLayout
+            android:id="@+id/inputContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_alignParentBottom="true">
+
+            <!-- Mic button -->
+            <ImageButton
+                android:id="@+id/recordButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:src="@drawable/ic_mic"/>
+
+            <!-- Text input -->
+            <EditText
+                android:id="@+id/messageEditText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Type your message"/>
+
+            <!-- Send button -->
+            <Button
+                android:id="@+id/sendButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Send"/>
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/settingsButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="text"
-            android:text="192.168.0.133:8000"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="6dp"
+            android:layout_marginEnd="7dp"
+            android:background="?android:attr/selectableItemBackground"
+            android:src="@drawable/ic_settings" />
+    </RelativeLayout>
 
-    <Button
-        android:id="@+id/recordButton"
-        android:layout_width="275dp"
-        android:layout_height="275dp"
-        android:text="Button"
-        app:layout_anchor="@+id/constraintLayout"
-        app:layout_anchorGravity="center" />
-
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+    <!-- Settings button at the top right corner -->
+</RelativeLayout>
